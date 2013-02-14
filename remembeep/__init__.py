@@ -26,7 +26,7 @@ All options:
 
 
 '''
-__version__ = '1.0'
+__version__ = '1.5'
 
 import os
 import time
@@ -34,6 +34,7 @@ import doctest
 from datetime import datetime, timedelta
 
 try:
+    import argparse
     from simple_daemon import Daemon
 except ImportError:
     pass
@@ -45,12 +46,25 @@ PID_FNAME = '/tmp/remembeep.pid'
 MP3_FNAME = rel2abs('default.mp3')
 
 
-def main(command, signal_filename, no_daemon, replay):
+def main():
+    parser = argparse.ArgumentParser(description='Signal every x minutes')
+    parser.add_argument('command', nargs='?', default='20',
+            help='signal period in minutes, "stop" or "test"')
+    parser.add_argument('-f', '--signal-filename', action='store',
+            default=MP3_FNAME, help='mp3 audio file name')
+    parser.add_argument('-r', '--replay', action='store', type=int,
+            default=3, help='replay count')
+    parser.add_argument('--no-daemon', action='store_true',
+        help='disable daemonisation')
+    run_command(**vars(parser.parse_args()))
+
+
+def run_command(command, signal_filename, no_daemon, replay):
     daemon = Daemon(PID_FNAME)
     if command == 'stop':
         daemon.stop()
     elif command == 'test':
-        doctest.testmod(verbose=True)
+        run_tests()
     elif command.isdigit():
         every = int(command)
         print_intro(every)
@@ -63,6 +77,9 @@ def main(command, signal_filename, no_daemon, replay):
     else:
         print 'unknown command'
 
+
+def run_tests():
+    return doctest.testmod(verbose=True)
 
 def print_intro(every):
     next_time = calculate_start_time(every)
@@ -131,15 +148,4 @@ def play_mp3(fname):
 
 
 if __name__ == '__main__':
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Signal every x minutes')
-    parser.add_argument('command', nargs='?', default='20',
-            help='signal period in minutes, "stop" or "test"')
-    parser.add_argument('-f', '--signal-filename', action='store',
-            default=MP3_FNAME, help='mp3 audio file name')
-    parser.add_argument('-r', '--replay', action='store', type=int,
-            default=3, help='replay count')
-    parser.add_argument('--no-daemon', action='store_true',
-        help='disable daemonisation')
-    main(**vars(parser.parse_args()))
+    main()

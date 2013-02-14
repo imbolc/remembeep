@@ -1,32 +1,38 @@
 #!/usr/bin/env python
 import os
 import sys
-import doctest
-try:
-	from setuptools import setup
-except ImportError:
-	from distutils.core import setup
+from setuptools import setup
 
-import remembeep as mod
+import remembeep as package
 
 
-DOC = mod.__doc__.strip()
-
-open('README.md', 'w').write(DOC)
+doc = package.__doc__.strip()
+open('README.md', 'w').write(doc)
 if sys.argv[-1] == 'publish':
-    if not doctest.testfile(mod.__file__, verbose=True).failed:
+    if not package.run_tests().failed:
         os.system('python setup.py sdist upload')
         sys.exit(0)
 
 setup(
-    name         = mod.__name__,
-    url          = 'https://github.com/imbolc/%s' % mod.__name__,
-    version      = mod.__version__,
-    description  = DOC.split('===\n')[1].strip().split('\n\n')[0],
-    long_description = DOC,
+    name         = package.__name__,
+    url          = 'https://github.com/imbolc/%s' % package.__name__,
+    version      = package.__version__,
+    description  = doc.split('===\n')[1].strip().split('\n\n')[0],
+    long_description = doc,
 
-    py_modules   = [mod.__name__],
+    #py_modules   = [package.__name__],
+    packages   = [package.__name__],
+
+    #package_data = {package.__name__: ['default.mp3']},
+    #include_package_data = True,
+
     install_requires = ['argparse'],
+
+    entry_points = {
+        'console_scripts': [
+            'remembeep = remembeep:main',
+        ]
+    },
 
     author       = 'Imbolc',
     author_email = 'imbolc@imbolc.name',

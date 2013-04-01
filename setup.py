@@ -26,7 +26,7 @@ setup(
     #package_data = {package.__name__: ['default.mp3']},
     #include_package_data = True,
 
-    install_requires = ['argparse'],
+    install_requires = ['argparse', 'simple_daemon'],
 
     entry_points = {
         'console_scripts': [
